@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Guía para el Examen – Seminario I 2026 - Profe olga</title>
+  <title>Guía para el Examen – Seminario I 2026</title>
   <style>
     :root {
       --primary: #2c3e7a;
@@ -224,6 +224,7 @@
     .options label.correct { border-color: var(--success); background: #eafaf1; }
     .options label.wrong { border-color: var(--error); background: #fdedec; }
     .options label.reveal-correct { border-color: var(--success); background: #eafaf1; }
+    .options label.picked { border-color: var(--secondary); background: var(--accent); box-shadow: 0 0 0 2px rgba(74,108,247,.25); }
 
     .feedback {
       margin-top: .8rem;
@@ -1071,8 +1072,13 @@
   document.querySelectorAll('.options input[type="radio"]').forEach(radio => {
     radio.addEventListener('change', function() {
       const qBlock = this.closest('.question-block');
-      const qName = this.name;
+
+      // Resalta la opción elegida al instante y limpia el resto de ese bloque
+      qBlock.querySelectorAll('.options label').forEach(l => l.classList.remove('picked'));
+      this.closest('label').classList.add('picked');
+
       if (!qBlock.dataset.checked) {
+        qBlock.dataset.checked = '1';
         answered++;
         document.getElementById('progress-text').textContent = answered + ' / 20 respondidas';
         document.getElementById('progress-bar').style.width = (answered/20*100) + '%';
@@ -1082,11 +1088,12 @@
 
   function checkQuiz() {
     let score = 0;
+    const qBlocks = document.querySelectorAll('.question-block');
     for (let i = 1; i <= 20; i++) {
-      const qBlock = document.querySelector(\`[data-answer]\:nth-of-type(\${i})\`) || document.querySelectorAll('.question-block')[i-1];
+      const qBlock = qBlocks[i-1];
       const correct = qBlock.dataset.answer;
       const qName = 'q' + i;
-      const selected = document.querySelector(\`input[name=\${qName}]:checked\`);
+      const selected = document.querySelector('input[name=' + qName + ']:checked');
       const fb = document.getElementById('fb' + i);
       const labels = qBlock.querySelectorAll('label');
 
@@ -1132,7 +1139,8 @@
     document.getElementById('progress-bar').style.width = '0%';
     document.getElementById('score-box').style.display = 'none';
     document.querySelectorAll('.feedback').forEach(f => { f.className = 'feedback'; f.innerHTML = ''; });
-    document.querySelectorAll('.options label').forEach(l => l.classList.remove('correct','wrong','reveal-correct'));
+    document.querySelectorAll('.options label').forEach(l => l.classList.remove('correct','wrong','reveal-correct','picked'));
+    document.querySelectorAll('.question-block').forEach(qb => delete qb.dataset.checked);
   }
 </script>
 </body>
